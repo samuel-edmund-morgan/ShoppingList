@@ -13,6 +13,8 @@ class ShopListAdapter : RecyclerView.Adapter<ShopListAdapter.ShopItemViewHolder>
         val tvName = view.findViewById<TextView>(R.id.tv_name)
         val tvCount = view.findViewById<TextView>(R.id.tv_count)
     }
+    var onShopItemLongClickListener: ((ShopItem) -> Unit)? = null
+    var onShopItemClickListener: ((ShopItem) -> Unit)? = null
     var shopList = listOf<ShopItem>()
         set(value) {
             field = value
@@ -39,11 +41,15 @@ class ShopListAdapter : RecyclerView.Adapter<ShopListAdapter.ShopItemViewHolder>
     }
 
     override fun onBindViewHolder(holder: ShopItemViewHolder, position: Int) {
-        val item = shopList[position]
-        holder.tvName.text = item.name
-        holder.tvCount.text = item.count.toString()
+        val shopItem = shopList[position]
+        holder.tvName.text = shopItem.name
+        holder.tvCount.text = shopItem.count.toString()
         holder.itemView.setOnLongClickListener {
+            onShopItemLongClickListener?.invoke(shopItem)
             true
+        }
+        holder.itemView.setOnClickListener {
+            onShopItemClickListener?.invoke(shopItem)
         }
     }
 
