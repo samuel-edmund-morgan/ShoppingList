@@ -3,6 +3,8 @@ package com.example.shoppinglist.presentation
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentContainerView
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
@@ -13,9 +15,12 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var viewModel: MainViewModel
     private lateinit var shopListAdapter: ShopListAdapter
+    private var shopItemContainer: FragmentContainerView? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        //Only can be in landscape orientation. In normal orientation there will be NULL
+        shopItemContainer = findViewById(R.id.shop_item_container)
         setupRecyclerView()
 
         viewModel = ViewModelProvider(this)[MainViewModel::class.java]
@@ -25,8 +30,13 @@ class MainActivity : AppCompatActivity() {
 
         val buttonAddItem = findViewById<FloatingActionButton>(R.id.button_add_shop_item)
         buttonAddItem.setOnClickListener {
-            val intent = ShopItemActivity.newIntentAddItem(this)
-            startActivity(intent)
+            if(isOnePaneMode()){
+                val intent = ShopItemActivity.newIntentAddItem(this)
+                startActivity(intent)
+            }
+            else {
+                launchFragment(ShopItemFragment.newInstanceAddItem())
+            }
         }
     }
 
@@ -69,8 +79,12 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupClickListener() {
         shopListAdapter.onShopItemClickListener = {
-            val intent = ShopItemActivity.newIntentEditItem(this, it.id)
-            startActivity(intent)
+            if(isOnePaneMode()){
+                val intent = ShopItemActivity.newIntentEditItem(this, it.id)
+                startActivity(intent)
+            }else {
+                launchFragment(ShopItemFragment.newInstanceEditItem(it.id))
+            }
         }
     }
 
@@ -80,6 +94,17 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun launchFragment(fragment: Fragment){
+        supportFragmentManager
+            .beginTransaction()
+            .addToBackStack(null)
+            .replace(R.id.shop_item_container, fragment )
+            .commit()
+    }
+
+    private fun isOnePaneMode():Boolean{
+        return shopItemContainer == null
+    }
 }
 
 
