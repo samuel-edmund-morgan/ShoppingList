@@ -3,11 +3,12 @@ package com.example.shoppinglist.presentation
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.shoppinglist.R
 import com.example.shoppinglist.domain.ShopItem
 
-class ShopItemActivity : AppCompatActivity() {
+class ShopItemActivity : AppCompatActivity(), ShopItemFragment.OnEditingFinishedListener {
     private var screenMode = MODE_UNKNOWN
     private var shopItemId = ShopItem.UNDEFINED_ID
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -64,5 +65,10 @@ class ShopItemActivity : AppCompatActivity() {
             intent.putExtra(SHOP_ITEM_ID, shopItemId)
             return intent
         }
+    }
+
+    override fun onEditingFinished() {
+        Toast.makeText(this, "Success!", Toast.LENGTH_LONG).show()
+        finish()
     }
 }

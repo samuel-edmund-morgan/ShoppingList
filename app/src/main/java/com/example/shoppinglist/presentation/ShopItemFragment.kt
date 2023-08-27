@@ -1,5 +1,6 @@
 package com.example.shoppinglist.presentation
 
+import android.content.Context
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -16,6 +17,8 @@ import com.google.android.material.textfield.TextInputLayout
 
 class ShopItemFragment : Fragment() {
     private lateinit var shopItemViewModel: ShopItemViewModel
+    private lateinit var onEditingFinishedListener: OnEditingFinishedListener
+
     private lateinit var tilName: TextInputLayout
     private lateinit var tilCount: TextInputLayout
     private lateinit var etName: EditText
@@ -28,6 +31,15 @@ class ShopItemFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         parseParams()
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        if(context is OnEditingFinishedListener){
+            onEditingFinishedListener = context
+        }else{
+            throw RuntimeException("Activity must implement OnEditingFinishedListener")
+        }
     }
 
     override fun onCreateView(
@@ -67,17 +79,15 @@ class ShopItemFragment : Fragment() {
         }
 
         shopItemViewModel.shouldCloseScreen.observe(viewLifecycleOwner) {
-            activity?.onBackPressedDispatcher?.onBackPressed()
+            onEditingFinishedListener.onEditingFinished()
         }
     }
-
     private fun launchRightMode() {
         when (screenMode) {
             MODE_EDIT -> launchEditMode()
             MODE_ADD -> launchAddMode()
         }
     }
-
     private fun addTextChangeListeners() {
         etName.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
@@ -168,18 +178,12 @@ class ShopItemFragment : Fragment() {
                 }
             }
         }
-//        fun newIntentAddItem(context: Context): Intent {
-//            val intent = Intent(context, ShopItemActivity::class.java)
-//            intent.putExtra(SCREEN_MODE, MODE_ADD)
-//            return intent
-//        }
-//
-//        fun newIntentEditItem(context: Context, shopItemId: Int): Intent {
-//            val intent = Intent(context, ShopItemActivity::class.java)
-//            intent.putExtra(SCREEN_MODE, MODE_EDIT)
-//            intent.putExtra(SHOP_ITEM_ID, shopItemId)
-//            return intent
-//        }
+
+
+    }
+
+    interface OnEditingFinishedListener{
+        fun onEditingFinished()
     }
 
 }
